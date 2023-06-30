@@ -1,21 +1,25 @@
-import java.io.FileInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.*;
+package kz.main;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.*;
 import java.security.cert.Certificate;
+
+//java -cp encryption-test-1.1.1.jar;kalkancrypt-0.7.2.jar kz.main.Main GOST3411-2015-512 ECGOST3410
 
 public class Main {
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     public static void main(String[] args) {
         Provider kalkanProvider = new KalkanProvider();
+
         String filePath = "C:/Users/020925600745/Desktop/req_test.txt";
-        String hashAlgorithm = "GOST3411-2015-256";
-        String encryptionAlgorithm = "ECGOST3410";
+        String hashAlgorithm = args[0];
+        String encryptionAlgorithm = args[1];
         String p12filePath = "C:/Users/020925600745/Documents/keytool-shep/GOSTKNCA_4a37965b1094c0f590fe79b041f503de03214dd8.p12";
         String password = "Aa123456";
         String alias = "4a37965b1094c0f590fe79b041f503de03214dd8";
@@ -36,8 +40,8 @@ public class Main {
         byte[] hashedData = messageHash(filePath, hashAlgorithm, kalkanProvider);
         byte[] encryptedHashData = encryptGOST3410(hashedData, encryptionAlgorithm, privateKey, kalkanProvider);
 
-        System.out.println("Encrypted " + bytesToHex(encryptedHashData));
         System.out.println("Hash " + bytesToHex(hashedData));
+        System.out.println("Encrypted " + bytesToHex(encryptedHashData));
 
         boolean isVerified = signVerify(hashedData, kalkanProvider, encryptionAlgorithm, publicKey, encryptedHashData);
         System.out.println("Signature verified - " + isVerified);
